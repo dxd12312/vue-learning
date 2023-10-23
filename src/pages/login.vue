@@ -35,7 +35,8 @@
                         </el-input>
                     </el-form-item>
                     <el-form-item>
-                        <el-button round color="#626aef" class="w-[250px]" type="primary" @click="onSubmit" :loading="loading">登 录</el-button>
+                        <el-button round color="#626aef" class="w-[250px]" type="primary" @click="onSubmit"
+                            :loading="loading">登 录</el-button>
                     </el-form-item>
                 </el-form>
             </el-col>
@@ -44,8 +45,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive } from 'vue'
-import { login, getinfo } from '~/api/manager.js'
+import { ref, reactive, onMounted,onBeforeUnmount } from 'vue'
 import { toast } from '~/composables/util'
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex'
@@ -91,29 +91,29 @@ const onSubmit = () => {
             return false
         }
         loading.value = true
-        //满足
-        //登录接口
-        login(form.username, form.password)
-            .then(res => {
-                console.log(res);
-                //提示成功
-                toast("登录成功")
-                //存储token
-                setToken(res.token)
-                //获取用户信息
-                getinfo().then(res2=> {
-                    store.commit("SET_USERINFO",res2)
-                    console.log(res2);
-                })
-                //跳转后台首页
-                router.push("/")
-
+        store.dispatch("login", form).then(res => {
+            toast("登录成功")
+            router.push("/")
+        })
+            .finally(() => {
+                loading.value = false
             })
     })
-    .finally(()=> {
-        loading.value = false
-    })
+
 }
+
+function onKeyUp(e) {
+    if (e.key == "Enter") onSubmit()
+}
+
+onMounted(() => {
+    document.addEventListener("keyup",onKeyUp)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener("keyup",onKeyUp)  
+})
+
 </script>
 <style>
 .login-container {

@@ -23,6 +23,8 @@ app.use(ElementPlus)
 app.use(router)
 //导入windicss
 import 'virtual:windi.css'
+
+import "./permission"
 //挂载容器
 app.mount('#app')
 
